@@ -1,0 +1,36 @@
+.playSection {
+    position: relative;
+    margin-top: 15px;
+    padding: 1px 0 0 0;
+}
+
+.playSection .numAudio, .playSection .playbackTime {
+    position: absolute;
+    font-size: 18px;
+}
+
+.playSection .numAudio {
+    left: 0;
+}
+
+.playSection .playbackTime {
+    right: 0;
+}
+
+.playSection .playbackScale {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 5px;
+    margin-top: 35px;
+    background-color: #0e1621;
+    outline: none;
+}
+
+.playSection .playbackScale::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background-color: #242f3d;
+    cursor: pointer;
+}

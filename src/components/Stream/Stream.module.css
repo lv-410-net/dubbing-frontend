@@ -1,0 +1,10 @@
+.stream {
+    margin-left: 290px;
+    padding: 18px 3.5% 0;
+}
+
+@media screen and (max-width: 1200px) {
+    .stream {
+        margin-left: 21.229%;
+    }
+}

@@ -1,0 +1,11 @@
+.popupBody {
+    background-color:  #091018;
+    color:white;
+    border: none;
+}
+
+.popupHeader {
+    background-color: #282c34;
+    border: none;
+    color:white;
+}

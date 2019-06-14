@@ -1,0 +1,97 @@
+.formHeader{
+    display: flex;
+    color:white;
+    width: 100%;
+    justify-content: space-between;
+    font-size:25px;
+    font-weight: 500;
+}
+input[type="text"], textarea {
+
+    background-color : #17212b;
+    border: none; 
+    border-radius: 5px;
+    color:white;    
+    width: 100%;
+    height: 30px;
+    padding: 10px;
+    outline: none;
+    transition: box-shadow 0.4s;
+}
+input[type="text"]:focus, textarea:focus{
+    outline: none !important;
+    border: 1px solid #447ecb;
+    box-shadow: 0 0 5px white;
+}
+
+.editForm{
+    margin-left: 290px;
+    color:white;
+    padding: 18px 3.6% 0;
+}
+.descrField{
+    height: 200px;
+    padding: 10px;
+   
+}
+
+.saveButton{
+    background-color: #8cc152;
+    color:white;
+    border: none;
+    height: 40px;
+    transition: background-color 0.25s;
+    border-bottom-left-radius: 20px;
+    border-top-left-radius: 20px;
+    margin-right: 5px; 
+    text-align: right;
+    cursor: default;
+    width: 138px;
+    padding-right: 10px;
+    font-size: 17px;
+    -webkit-appearance: none;
+
+}
+.cancelButton{
+    background-color: #da4453;
+    color:white;
+    border: none;
+    height: 40px;
+    transition: background-color 0.25s;
+    border-bottom-right-radius: 20px;
+    border-top-right-radius: 20px;
+    cursor: default;
+    width: 138px;
+    text-align: center;
+    padding-right: 10px;
+    font-size: 17px;
+    -webkit-appearance: none;
+
+}
+.cancelButton:hover{
+    cursor: pointer;
+    background-color: #b23945;
+}
+.saveButton:hover{
+    cursor: pointer;
+    background-color: #77a347;
+}
+.headerButtons{
+    margin-left: auto;
+
+}
+.formTitles{
+    font-size: 18px;
+    font-weight: 300;
+    margin-left: 13px;
+    margin-top: 11px;
+}
+.saveIcon{
+    margin-right: 8px;
+}
+
+@media screen and (max-width: 1200px) {
+    .editForm {
+        margin-left: 21.229%;
+    }
+}

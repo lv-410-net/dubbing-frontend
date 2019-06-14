@@ -1,0 +1,28 @@
+.Content {
+    font-size: 16px;
+    font-weight: 300;
+}
+
+.BtnContainer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 5px;
+}
+
+.Btn {
+    padding: 2px 0;
+    min-width: 80px;
+    border-radius: 10px;
+}
+
+.Btn:not(:first-child) {
+    margin-left: 7px;
+}
+
+.Green {
+    background-color: #8cc152;
+}
+
+.Red {
+    background-color: #ff0000;
+}

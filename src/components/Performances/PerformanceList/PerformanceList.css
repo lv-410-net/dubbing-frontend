@@ -1,0 +1,54 @@
+.addButton{
+    background-color: #563a9d;
+    border: none;
+    color:white;
+    border-radius: 20px;
+    height: 40px;
+    padding-left: 20px;
+    padding-right: 20px;
+    transition: background-color 0.25s;
+    margin-left: 20px;  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    -webkit-appearance: none;
+    cursor: default;
+}
+
+.addButton:hover{
+    background-color: #704bcc;
+   cursor: pointer;
+}
+
+.header{
+  
+    display: flex;
+    color:white;
+    
+}
+
+.header p{
+    font-size: 25px;
+}
+
+.addImage{
+    background: url('../../../assets/images/add-logo.png');
+    background-repeat: no-repeat;
+    width: 29px;
+    height: 18px;
+    float: left;
+    margin-left: 0px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.perfomanceList {
+    margin-left: 290px;
+    padding: 18px 3.6% 0;
+}
+
+@media screen and (max-width: 1200px) {
+    .perfomanceList {
+        margin-left: 21.229%;
+    }
+}

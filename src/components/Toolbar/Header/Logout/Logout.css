@@ -1,0 +1,13 @@
+.logout .user-name {
+    color: #9f8383;
+    font-size: 14px;
+    font-weight: 300;
+}
+
+.logout .user-action {
+    margin-left: 27px;
+}
+
+.logout .user-action:hover {
+    background-color: #d81226 !important;
+}

@@ -1,0 +1,21 @@
+.streamHead {
+    display: flex;
+    align-items: center;
+}
+
+.streamHead .title {
+    font-size: 32px;
+    font-weight: 500;
+}
+
+.streamHead .btn {
+    display: flex;
+    align-items: center;
+    padding: 0 13px 0 12px;
+    margin-left: 29px;
+}
+
+.btn i {
+    margin-right: 7px;
+    font-size: 18px;
+}

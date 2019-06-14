@@ -1,0 +1,70 @@
+.btnSection {
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.btnSection .prev, .btnSection .next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+.btnSection .prev {
+    left: 4%;
+}
+
+.btnSection .next {
+    right: 4%;
+}
+
+.btnSection .prev:hover, .btnSection .next:hover {
+    font-size: 26px;
+}
+
+.prevNextDisable {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 20px !important;
+    cursor: default !important;
+}
+
+.prevNextDisable:hover {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.btnSection .act {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    font-size: 40px;
+
+    transition: background-color 0.3s;
+}
+
+.disable {
+    background-color: rgba(140, 193, 82, 0.7) !important;
+    cursor: default;
+}
+
+.play {
+    background-color: #8cc152;
+}
+
+.play:hover {
+    background-color: #659431;
+}
+
+.pause {
+    background-color: #da4453;
+}
+
+.pause:hover {
+    background-color: #cf1225;
+}

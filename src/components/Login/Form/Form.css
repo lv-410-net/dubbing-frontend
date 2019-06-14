@@ -1,0 +1,81 @@
+
+
+.login-form .form-control {
+  background: #17212b none repeat scroll 0 0;
+  border: 1px solid #364456;
+  border-radius: 4px;
+  font-size: 14px;
+  height: 50px;
+  line-height: 50px;
+  
+  
+}
+.main-div {
+  background: #17212b none repeat scroll 0 0;
+  border-radius: 5px;
+  margin: 0px auto 0px;
+  max-width: 28%;
+  padding: 10px 25px 25px 25px;
+}
+
+#inputEmail{
+    font-size: 15px;
+    padding: 5px;
+    color: aliceblue;
+}
+
+#inputPassword{
+    font-size: 15px;
+    padding: 5px;
+    color: aliceblue;
+}
+
+.login-form .form-group {
+  margin-bottom:10px;
+}
+
+.login-form{ text-align:center;}
+
+
+#inputEmail{
+    background: #242f3d;
+    width: 100%;
+    background-color: #242f3d;
+
+}
+#inputPassword{
+    width: 100%;
+    background: #242f3d;
+    background-color: #242f3d;
+}
+
+.login-form  .btn.btn-primary {
+  background: #563a9d none repeat scroll 0 0;
+  border-color: #563a9d;
+  color: #ffffff;
+  font-size: 14px;
+  width: 100%;
+  height: 45px;
+  border-radius: 5px;
+  line-height: 50px;
+  padding: 0;
+  margin-bottom: 20px;
+}
+.login-form .btn.btn-primary:hover{
+    background: #3f2b74;
+}
+
+#register-link{
+    display:inline-block;
+    width: 45%   
+}
+
+.remember{
+    font-size: 16px;
+    
+}
+
+.text-info {
+    color: #447ecb;
+}
+

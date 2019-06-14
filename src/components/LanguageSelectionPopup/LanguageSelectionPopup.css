@@ -1,0 +1,21 @@
+.popupBody {
+    background-color:  #091018;
+    color:white;
+    border: none;
+}
+
+.popupHeader {
+    background-color: #282c34;
+    border: none;
+    color:white;
+}
+
+ .languageButton {
+    padding-top: 20px;
+    margin-right: 20px;
+    display: inline-block;
+ }
+
+ .inputLang input{
+     background-color: aliceblue;
+ }

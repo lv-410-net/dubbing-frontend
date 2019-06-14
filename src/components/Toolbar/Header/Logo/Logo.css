@@ -1,0 +1,9 @@
+.header-logo {
+    font-size: 25px;
+    background-color: transparent;
+    padding: 0;
+}
+
+button:focus {
+    outline: 0 !important;
+}

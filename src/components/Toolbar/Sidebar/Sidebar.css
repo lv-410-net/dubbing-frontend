@@ -1,0 +1,25 @@
+.sidebar {
+    position: fixed;
+    width: 290px;
+    height: 100%;
+    background-color: #17212b;
+
+    box-shadow: 0 3px 2px 0 #151e27 inset;
+}
+
+.sidebar .nav {
+    margin-top: 12px;
+}
+
+.countBlock {
+    margin-top: 15px;
+
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+@media screen and (max-width: 1200px) {
+    .sidebar {
+        width: 21.2222%;
+    }
+}
