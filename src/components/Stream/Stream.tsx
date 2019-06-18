@@ -268,13 +268,11 @@ class Stream extends Component<IStreamProps, IStreamState> {
         this.props.onChangeCurrentTabId(1);
 
         window.onbeforeunload = (event) => {
-            return this.props.connectingStatus
-                    ? false
-                    : null;
+            return this.disconnectFromServer();
         };
     }
 
-    public async componentWillUnmount() {
+    public async disconnectFromServer(){
         if (this.props.connectingStatus) {
             if (this.props.isPlaying) {
                 await this.pause();
@@ -287,7 +285,10 @@ class Stream extends Component<IStreamProps, IStreamState> {
         }
 
         this.props.onChangeStreamStateToInitial();
-        window.onbeforeunload = null;
+    }
+
+    public async componentWillUnmount() {
+        await this.disconnectFromServer();
     }
 
     private handleError = (response: Response) => {
