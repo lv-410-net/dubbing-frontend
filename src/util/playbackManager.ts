@@ -22,10 +22,11 @@ class PlaybackManager {
                         changeCurrentPlaybackTime(this.currentTime);
                     } else if (this.currentTime >= this.maxDuration) {
                         pause();
+                        clearInterval(this.timerId);
                     }
                 }, 1000);
             }
-    }
+        }
 
     public pause = () => {
         if (this.timerId) {
@@ -33,9 +34,16 @@ class PlaybackManager {
         }
     }
 
-    public continue = () => {
+    public resume = (changeCurrentPlaybackTime: any, pause: any) => {
         if (this.timerId) {
             this.isPause = false;
+            this.timerId = setInterval(() => {
+                if (!this.isPause && this.currentTime < this.maxDuration) {
+                    changeCurrentPlaybackTime(this.currentTime);
+                } else if (this.currentTime >= this.maxDuration) {
+                    pause();
+                }
+            }, 1000);
         }
     }
 

@@ -21,6 +21,7 @@ import classes from "./ActionSection.module.css";
 interface IActionSectionProps {
     performanceId: number;
     isPlaying: boolean;
+    paused: boolean;
     currentSpeechId: number;
     currentSpeechIndex: number;
     currentPlaybackTime: number;
@@ -35,12 +36,15 @@ interface IActionSectionProps {
     onChangeStreamingStatus: Function;
     onChangeCurrentSpeechId: Function;
     onChangeCurrentPlaybackTime: Function;
+    onChangePaused: Function;
+    onChangeFirst: Function;
     // tslint:enable
 }
 
 interface IActionSectionState {
     performanceId: number;
     currentTime: number;
+    //paused: boolean;
 }
 
 interface IMapKeyBindings {
@@ -66,6 +70,7 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
         this.state = {
             currentTime: 0,
             performanceId: this.props.performanceId,
+            //paused: false
         };
     }
 
@@ -76,6 +81,7 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
             if (!this.props.isPlaying) {
                 await signalRManager.sendCommand(this.props.performanceId + "_" + this.props.currentSpeechId);
                 this.props.onChangeStreamingStatus(true);
+                this.props.onChangeFirst(false);
 
                 playbackManager.play(
                     this.props.onChangeCurrentPlaybackTime,
@@ -86,14 +92,45 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
             }
         }
     }
+    
+    public playResumeHandler = async (event: Event) => {
+        event.preventDefault();
+
+        if (this.props.connectingStatus) {
+            if (!this.props.isPlaying) {
+                await signalRManager.sendCommand("Resume");
+                    this.props.onChangeStreamingStatus(true);
+                    playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.pause.bind(this));
+                    this.props.onChangePaused(false);
+            } else if (this.props.isPlaying) {
+                await this.pause();
+            }
+        }
+    }
 
     public pause = async () => {
-        return await signalRManager.sendCommand("Pause")
+        if (!this.props.paused) {
+            return await signalRManager.sendCommand("Pause", this.props.currentPlaybackTime)
                     .then(() => {
                         this.props.onChangeStreamingStatus(false);
-                        playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
+                        playbackManager.pause();
+                        this.props.onChangePaused(true);
+                        console.log(this.props.paused);
                     })
                     .catch((error) => console.log(error));
+        }        
+    }
+
+    public resume = async () => {
+        if (this.props.paused) {
+            return await signalRManager.sendCommand("Resume")
+                    .then(() => {
+                        this.props.onChangeStreamingStatus(true);
+                        playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.pause.bind(this));
+                        this.props.onChangePaused(false);
+                    })
+                    .catch((error) => console.log(error));
+        }       
     }
 
     public nextSpeechHandler = async (event: Event) => {
@@ -164,7 +201,7 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
         return (
             <Aux>
                 <ButtonSection
-                    playPauseHandler={this.playPauseHandler}
+                    playPauseHandler={this.props.paused ? this.playResumeHandler : this.playPauseHandler}
                     nextSpeechHandler={this.nextSpeechHandler}
                     prevSpeechHandler={this.prevSpeechHandler}
                     connectingStatus={this.props.connectingStatus}
@@ -190,6 +227,8 @@ const mapStateToProps = (state: StateType) => {
         isPlaying: state.stream.isPlaying,
         maxDuration: state.stream.maxDuration,
         speeches: state.stream.speeches,
+        paused: state.stream.paused,
+        isFirst: state.stream.isFirst
     };
 };
 
@@ -198,6 +237,8 @@ const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
         onChangeCurrentPlaybackTime: (time: number) => dispatch(actions.changeCurrentPlaybackTime(time)),
         onChangeCurrentSpeechId: (id: number) => dispatch(actions.saveCurrentSpeechId(id)),
         onChangeStreamingStatus: (status: boolean) => dispatch(actions.changeStreamingStatus(status)),
+        onChangePaused: (paused: boolean) => dispatch(actions.changePaused(paused)),
+        onChangeFirst: (isFirst: boolean) => dispatch(actions.changeFirst(isFirst))
     };
 };
 

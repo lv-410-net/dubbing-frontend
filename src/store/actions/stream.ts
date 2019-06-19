@@ -11,6 +11,24 @@ export const savePerformanceId = (id: number) => {
     };
 };
 
+export const changePaused = (paused: boolean) => {
+    return {
+        payload: {
+            paused,
+        },
+        type: actionTypes.CHANGE_PAUSED,
+    };
+};
+
+export const changeFirst = (isFirst: boolean) => {
+    return {
+        payload: {
+            isFirst,
+        },
+        type: actionTypes.CHAGNGE_FIRST,
+    };
+};
+
 // Load Speeches and store them in central store
 export const saveSpeeches = (data: any) => {
     return {

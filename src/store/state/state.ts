@@ -12,6 +12,8 @@ export default interface IState {
         currentSpeechIndex: number,
         currentPlaybackTime: number,
         maxDuration: number,
+        paused: boolean,
+        isFirst: boolean,
     };
     audioUpload: {
         isNewFilesLoaded: boolean,

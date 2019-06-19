@@ -19,6 +19,8 @@ interface IStateType {
     currentSpeechIndex: number;
     currentPlaybackTime: number;
     maxDuration: number;
+    paused: boolean;
+    isFirst: boolean;
 }
 
 const initialState = {
@@ -30,6 +32,8 @@ const initialState = {
     maxDuration: 0,
     performanceId: -1,
     speeches: undefined,
+    paused: false,
+    isFirst: true,
 };
 
 const reducer = (state: IStateType = initialState, action: IActionType) => {
@@ -71,6 +75,11 @@ const reducer = (state: IStateType = initialState, action: IActionType) => {
         case actionTypes.CHANGE_CONNECTING_STATUS:
             updatedState.connectingStatus = action.payload.status;
             break;
+        case actionTypes.CHANGE_PAUSED:
+            updatedState.paused = action.payload.paused;
+            break;
+        case actionTypes.CHAGNGE_FIRST:
+            updatedState.isFirst = action.payload.isFirst;
         default:
             break;
     }

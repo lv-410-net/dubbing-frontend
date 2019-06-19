@@ -35,7 +35,7 @@ class SignalrManager {
     }
 
     public async sendCommand(command: string, time: number = 0, connectionId: any = null): Promise<void> {
-        console.log("Try send to SignalR Hub:" + command);
+        console.log("Try send to SignalR Hub:" + command + " " + time);
         
         if (time !== 0) 
             return await this.connection.send("SendMessageAndTime", command, time, connectionId);

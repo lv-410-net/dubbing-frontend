@@ -21,7 +21,7 @@ import classes from "./Stream.module.css";
 interface IStreamState {
     perfomanceId: number;
     performanceName: string;
-    isFirst: boolean;
+    //isFirst: boolean;
     started: boolean;
     isWarning: boolean;
     isLoading: boolean;
@@ -36,6 +36,8 @@ interface IStreamProps {
     performanceId: number;
     connectingStatus: boolean;
     isPlaying: boolean;
+    paused: boolean;
+    isFirst: boolean;
     currentSpeechId: number;
     maxDuration: number;
     currentTime: number;
@@ -52,6 +54,8 @@ interface IStreamProps {
     onChangeCurrentPlaybackTime: Function;
     onChangeConnectingStatus: Function;
     onChangeCurrentTabId: Function;
+    onChangePaused: Function;
+    onChangeFirst: Function;
 }
 
 interface IMapKeysBinding {
@@ -69,7 +73,6 @@ class Stream extends Component<IStreamProps, IStreamState> {
     constructor(props: any) {
         super(props);
         this.state = {
-            isFirst: true,
             started: false,
             isWarning: false,
             perfomanceId: this.props.match.params.number,
@@ -82,7 +85,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
     public onLateConnection = async (connectionId: number) => {
         if (this.state.started && this.props.isPlaying) {
             //console.log("Late connected");
-            console.log(this.props.currentTime);
+            console.log(this.props.currentTime + " " + connectionId);
             await signalRManager.sendCommand(`${this.props.performanceId}_${this.props.currentSpeechId}`, 
                 this.props.currentTime, connectionId);
         }
@@ -133,7 +136,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
 
     public playByIdHandler = async (id: number) => {
         if (this.props.connectingStatus) {
-            if (this.state.isFirst || (this.props.isPlaying && id !== this.props.currentSpeechId)) {
+            if (this.props.isFirst || (this.props.isPlaying && id !== this.props.currentSpeechId)) {
                 await signalRManager.sendCommand(this.props.performanceId + "_" + id)
                 .then(() => {
                     this.props.onSaveCurrentSpeechId(id);
@@ -146,14 +149,12 @@ class Stream extends Component<IStreamProps, IStreamState> {
                         this.pause.bind(this),
                         this.props.maxDuration, 0);
 
-                    if (this.state.isFirst) {
-                        this.setState({
-                            isFirst: false,
-                        });
+                    if (this.props.isFirst) {
+                        this.props.onChangeFirst(false);
                     }
                 })
                 .catch(() => alert("Виникла помилка на сервері. Спробуйте перевірити з'єднання!"));
-            } else if (!this.props.isPlaying) {
+            } else if (!this.props.isPlaying && !this.props.isFirst) {
                 await signalRManager.sendCommand(this.props.performanceId + "_" + id)
                 .then(() => {
                     this.props.onSaveCurrentSpeechId(id);
@@ -173,12 +174,28 @@ class Stream extends Component<IStreamProps, IStreamState> {
     }
 
     public pause = async (): Promise<void> => {
-        return await signalRManager.sendCommand("Pause")
+        if (!this.props.paused) {
+            return await signalRManager.sendCommand("Pause", this.props.currentTime)
                 .then(() => {
                     this.props.onChangeStreamingStatus(false);
-                    playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
+                    playbackManager.pause();
+                    this.props.onChangePaused(true);
+                    console.log(this.props.paused);
                 })
                 .catch(() => alert("Виникла помилка на сервері. Спробуйте перевірити з'єднання!"));
+        }        
+    }
+
+    public resume = async (): Promise<void> => {
+        if (this.props.paused) {
+            return await signalRManager.sendCommand("Resume")
+                .then(() => {
+                    this.props.onChangeStreamingStatus(true);
+                    playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.pause.bind(this));
+                    this.props.onChangePaused(false);
+                })
+                .catch(() => alert("Виникла помилка на сервері. Спробуйте перевірити з'єднання!"));
+        }      
     }
 
     public playPauseHandler = async (event: Event) => {
@@ -195,6 +212,20 @@ class Stream extends Component<IStreamProps, IStreamState> {
                     this.props.maxDuration,
                     this.props.currentTime);
             } else {
+                await this.pause();
+            } 
+        }
+    }
+
+    public playResumeHandler = async () => {
+        if (this.props.connectingStatus) {
+
+            if (!this.props.isPlaying) {
+                await signalRManager.sendCommand("Resume");
+                this.props.onChangeStreamingStatus(true);
+                playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.pause.bind(this));
+                this.props.onChangePaused(false);
+            } else if (this.props.isPlaying) {
                 await this.pause();
             }
         }
@@ -214,7 +245,11 @@ class Stream extends Component<IStreamProps, IStreamState> {
         this.map[event.key] = event.type === "keydown";
 
         if (this.checkKeys(KeyChars.Space) && this.repeat) {
-            await this.playPauseHandler(event);
+            if (!this.props.paused) {
+                this.pause();
+            } else {
+                this.resume();
+            }
             this.repeat = false;
         } else if (event.type === "keyup") {
             this.repeat = true;
@@ -233,7 +268,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
                     audios={this.props.speeches !== undefined ? this.props.speeches : []}
                     connectingStatus={this.props.connectingStatus}
                     currentAudioId={this.props.currentSpeechId}
-                    playByIdHandler={this.playByIdHandler}
+                    playByIdHandler={ !this.props.paused ? this.playByIdHandler : this.playResumeHandler }
                     isPlaying={this.props.isPlaying} />
                 <KeyBinding onKey={(event: KeyboardEvent) => this.onKeyDownUpHandler(event)} type="keydown"/>
                 <KeyBinding onKey={(event: KeyboardEvent) => this.onKeyDownUpHandler(event)} type="keyup"/>
@@ -309,6 +344,8 @@ const mapDispatchToProps = (dispatch: any) => {
         onSaveCurrentSpeechId: (id: number) => dispatch(actionCreators.saveCurrentSpeechId(id)),
         onSavePerformanceId: (id: number) => dispatch(actionCreators.savePerformanceId(id)),
         onChangeCurrentTabId: (nextId: number) => dispatch(actionCreators.changeCurrentTabId(nextId)),
+        onChangePaused: (paused: boolean) => dispatch(actionCreators.changePaused(paused)),
+        onChangeFirst: (isFirst: boolean) => dispatch(actionCreators.changeFirst(isFirst))
     };
 };
 
@@ -321,6 +358,8 @@ const mapStateToProps = (state: StateType) => {
         performanceId: state.stream.performanceId,
         speeches: state.stream.speeches,
         currentTime: state.stream.currentPlaybackTime,
+        paused: state.stream.paused,
+        isFirst: state.stream.isFirst,
     };
 };
 
