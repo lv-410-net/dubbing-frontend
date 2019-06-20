@@ -25,6 +25,7 @@ interface IStreamState {
     started: boolean;
     isWarning: boolean;
     isLoading: boolean;
+    startTime: number
 }
 
 interface IStreamProps {
@@ -75,20 +76,17 @@ class Stream extends Component<IStreamProps, IStreamState> {
             perfomanceId: this.props.match.params.number,
             performanceName: "",
             isLoading: true,
+            startTime: new Date().getTime(),
         };
         signalRManager.registerEvent("Late Connect", this.onLateConnection);
     }
 
     public onLateConnection = async (connectionId: number) => {
         if (this.state.started && this.props.isPlaying) {
-            //console.log("Late connected");
             console.log(this.props.currentTime);
             await signalRManager.sendCommand(`${this.props.performanceId}_${this.props.currentSpeechId}`, 
-                this.props.currentTime, connectionId);
+                this.state.startTime, connectionId);
         }
-        // else {
-        //     await signalRManager.sendCommand("Start");
-        // }
     }
 
     public changeConnectingStatus = async (event: Event) => {
@@ -138,7 +136,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
                 .then(() => {
                     this.props.onSaveCurrentSpeechId(id);
                     this.props.onChangeStreamingStatus(true);
-                    this.setState({ started: true });
+                    this.setState({ started: true, startTime: new Date().getTime() });
 
                     playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
                     playbackManager.play(
@@ -158,7 +156,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
                 .then(() => {
                     this.props.onSaveCurrentSpeechId(id);
                     this.props.onChangeStreamingStatus(true);
-                    this.setState({ started: true });
+                    this.setState({ started: true, startTime: new Date().getTime() });
 
                     playbackManager.play(
                         this.props.onChangeCurrentPlaybackTime,
@@ -188,6 +186,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
             if (!this.props.isPlaying) {
                 await signalRManager.sendCommand(this.props.performanceId + "_" + this.props.currentSpeechId);
                 this.props.onChangeStreamingStatus(true);
+                this.setState({ started: true, startTime: new Date().getTime() })
 
                 playbackManager.play(
                     this.props.onChangeCurrentPlaybackTime,
