@@ -44,7 +44,6 @@ interface IActionSectionProps {
 interface IActionSectionState {
     performanceId: number;
     currentTime: number;
-    //paused: boolean;
 }
 
 interface IMapKeyBindings {
@@ -70,7 +69,7 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
         this.state = {
             currentTime: 0,
             performanceId: this.props.performanceId,
-            //paused: false
+
         };
     }
 
@@ -80,15 +79,24 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
         if (this.props.connectingStatus) {
             if (!this.props.isPlaying) {
                 await signalRManager.sendCommand(this.props.performanceId + "_" + this.props.currentSpeechId);
+                this.props.onChangePaused(false);
                 this.props.onChangeStreamingStatus(true);
                 this.props.onChangeFirst(false);
 
                 playbackManager.play(
                     this.props.onChangeCurrentPlaybackTime,
                     this.pause.bind(this),
+                    this.reset.bind(this),
                     this.props.maxDuration, 0);
             } else if (this.props.isPlaying) {
                 await this.pause();
+            } else if (this.props.paused && !this.props.currentSpeechId) {
+                await this.reset();
+                playbackManager.play(
+                    this.props.onChangeCurrentPlaybackTime,
+                    this.pause.bind(this),
+                    this.reset.bind(this),
+                    this.props.maxDuration, 0);
             }
         }
     }
@@ -115,10 +123,17 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
                         this.props.onChangeStreamingStatus(false);
                         playbackManager.pause();
                         this.props.onChangePaused(true);
-                        console.log(this.props.paused);
                     })
                     .catch((error) => console.log(error));
         }        
+    }
+
+    public reset = async () => {
+        if (this.props.currentPlaybackTime >= this.props.maxDuration) {
+            this.props.onChangeStreamingStatus(false);
+            playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
+            this.props.onChangePaused(false);
+        }
     }
 
     public resume = async () => {
@@ -147,6 +162,7 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
                     playbackManager.play(
                         this.props.onChangeCurrentPlaybackTime,
                         this.pause.bind(this),
+                        this.reset.bind(this),
                         this.props.maxDuration, 0);
                 }
             }
@@ -167,6 +183,7 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
                     playbackManager.play(
                         this.props.onChangeCurrentPlaybackTime,
                         this.pause.bind(this),
+                        this.reset.bind(this),
                         this.props.maxDuration, 0);
                 }
             }
