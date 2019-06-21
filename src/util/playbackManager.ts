@@ -3,15 +3,17 @@ class PlaybackManager {
     private maxDuration: number;
     private isPause: boolean;
     private timerId: any;
+    private tempTime: number;
 
     constructor() {
         this.currentTime = 0;
         this.maxDuration = 0;
         this.isPause = true;
         this.timerId = 0;
+        this.tempTime = 0;
     }
 
-    public play = (changeCurrentPlaybackTime: any, pause: any, totalDuration: number, currTime: number) => {
+    public play = (changeCurrentPlaybackTime: any, pause: any, reset: any, totalDuration: number, currTime: number) => {
             if (!this.timerId) {
                 this.isPause = false;
                 this.currentTime = currTime;
@@ -21,21 +23,32 @@ class PlaybackManager {
                         this.currentTime++;
                         changeCurrentPlaybackTime(this.currentTime);
                     } else if (this.currentTime >= this.maxDuration) {
-                        pause();
+                        reset();
                     }
                 }, 1000);
             }
-    }
+        }
 
     public pause = () => {
         if (this.timerId) {
             this.isPause = true;
+            this.tempTime = this.currentTime;
+            clearInterval(this.timerId);
         }
     }
 
-    public continue = () => {
+    public resume = (changeCurrentPlaybackTime: any, reset: any) => {
         if (this.timerId) {
             this.isPause = false;
+            this.currentTime = this.tempTime;
+            this.timerId = setInterval(() => {
+                if (!this.isPause && this.currentTime < this.maxDuration) {
+                    this.currentTime++;
+                    changeCurrentPlaybackTime(this.currentTime);
+                } else if (this.currentTime >= this.maxDuration) {
+                    reset();
+                }
+            }, 1000);
         }
     }
 

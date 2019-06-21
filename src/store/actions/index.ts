@@ -6,6 +6,8 @@ export {
     changeStreamStateToInitial,
     changeCurrentPlaybackTime,
     changeConnectingStatus,
+    changePaused,
+    changeFirst
 } from "./stream";
 
 export {
