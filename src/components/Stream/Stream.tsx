@@ -84,10 +84,10 @@ class Stream extends Component<IStreamProps, IStreamState> {
     }
 
     public onLateConnection = async (connectionId: number) => {
-        if (this.state.started && this.props.isPlaying) {
+        if (this.state.started) {
             console.log(this.props.currentTime);
 
-            await signalRManager.sendCommand(`${this.props.performanceId}_${this.props.currentSpeechId}`, 
+            await signalRManager.sendCommandToUser(`${this.props.performanceId}_${this.props.currentSpeechId}`, 
                 this.state.startTime, connectionId);
         }
     }
@@ -102,7 +102,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
                         await signalRManager.sendCommand("Start")
                             .then(() => {
                                 this.props.onChangeConnectingStatus(true);
-                                this.setState({ started: true });
+                                //this.setState({ started: true });
                             })
                             .catch(() => alert("Виникла помилка на сервері!"));
                     })
@@ -200,7 +200,8 @@ class Stream extends Component<IStreamProps, IStreamState> {
 
     public pause = async (): Promise<void> => {
         if (!this.props.paused) {
-            return await signalRManager.sendCommand("Pause", this.props.currentTime)
+            let time = new Date().getTime();
+            return await signalRManager.sendCommand("Pause", time - this.props.currentTime * 1000)
                 .then(() => {
                     this.props.onChangeStreamingStatus(false);
                     playbackManager.pause();
