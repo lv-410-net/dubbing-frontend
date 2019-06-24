@@ -20,6 +20,7 @@ import classes from "./ActionSection.module.css";
 
 interface IActionSectionProps {
     performanceId: number;
+    isFirst: boolean;
     isPlaying: boolean;
     paused: boolean;
     currentSpeechId: number;
@@ -133,6 +134,8 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
             this.props.onChangeStreamingStatus(false);
             playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
             this.props.onChangePaused(false);
+            this.props.onChangeFirst(true);
+            //this.props.onChangeCurrentSpeechId(0);
         }
     }
 
@@ -157,8 +160,11 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
                 this.props.onChangeCurrentSpeechId(nextSpeechId);
                 playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
 
-                if (this.props.isPlaying) {
+                if (this.props.isPlaying || this.props.paused) {
                     await signalRManager.sendCommand(this.props.performanceId + "_" + nextSpeechId);
+                    this.props.onChangeStreamingStatus(true);
+                    this.props.onChangePaused(false);
+                    
                     playbackManager.play(
                         this.props.onChangeCurrentPlaybackTime,
                         this.pause.bind(this),
@@ -176,10 +182,13 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
             if (this.props.currentSpeechIndex !== 0) {
                 const prevSpeechId = this.props.speeches[this.props.currentSpeechIndex - 1].id;
                 this.props.onChangeCurrentSpeechId(prevSpeechId);
-                playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
 
-                if (this.props.isPlaying) {
+                if (this.props.isPlaying || this.props.paused) {
                     await signalRManager.sendCommand(this.props.performanceId + "_" + prevSpeechId);
+                    playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
+                    this.props.onChangeStreamingStatus(true);
+                    this.props.onChangePaused(false);
+
                     playbackManager.play(
                         this.props.onChangeCurrentPlaybackTime,
                         this.pause.bind(this),

@@ -104,6 +104,10 @@ class Stream extends Component<IStreamProps, IStreamState> {
                             .then(() => {
                                 this.props.onChangeConnectingStatus(true);
                                 this.setState({ started: true });
+                                if (this.props.isFirst && this.props.isPlaying) {
+                                    this.playByIdHandler(this.props.currentSpeechId);
+                                    this.props.onChangePaused(false);
+                                }
                             })
                             .catch(() => alert("Виникла помилка на сервері!"));
                     })
@@ -119,6 +123,11 @@ class Stream extends Component<IStreamProps, IStreamState> {
                             .then(() => {
                                 this.props.onChangeConnectingStatus(false);
                                 this.setState({ started: false });
+                                this.reset();
+                                this.props.onChangeFirst(true);
+                                this.props.onChangePaused(false);
+                                this.props.onChangeStreamingStatus(false);
+                                //this.props.onSaveCurrentSpeechId(0);
 
                                 if (this.props.speeches !== undefined && this.props.speeches.length !== 0) {
                                     this.props.onSaveCurrentSpeechId(this.props.speeches[0].id);
@@ -217,6 +226,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
             this.props.onChangeStreamingStatus(false);
             playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
             this.props.onChangePaused(false);
+            this.props.onChangeFirst(true);
         }
     }
 
