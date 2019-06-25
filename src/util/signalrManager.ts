@@ -34,24 +34,19 @@ class SignalrManager {
         return await this.connection.stop();
     }
 
-    public async sendCommand(command: string, startTime: number = 0): Promise<void> {
+    public async sendCommand(command: string, offset: number = 0): Promise<void> {
         console.log("Try send to SignalR Hub:" + command);
-        
-        let time = new Date().getTime();
-        console.log(startTime);
 
-        if (startTime !== 0)
-            return await this.connection.send("SendMessageAndTime", command, time, startTime);
+        if (offset !== 0)
+            return await this.connection.send("SendMessageAndTime", command, offset);
 
-        return await this.connection.send("SendMessage", command, time);
+        return await this.connection.send("SendMessage", command);
     }
 
-    public async sendCommandToUser(command: string, startTime: number, isPaused: boolean, connectionId: any) {
+    public async sendCommandToUser(command: string, offset: number, isPaused: boolean, connectionId: any) {
         console.log("Try send to SignalR Hub:" + command);
 
-        let time = new Date().getTime();
-
-        return await this.connection.send("SendMessageToUser", command, time, time - startTime * 1000, isPaused, connectionId);
+        return await this.connection.send("SendMessageToUser", command, offset, isPaused, connectionId);
     }
 }
 

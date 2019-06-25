@@ -201,7 +201,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
     public pause = async (): Promise<void> => {
         if (!this.props.paused) {
             let time = new Date().getTime();
-            return await signalRManager.sendCommand("Pause", time - this.props.currentTime * 1000)
+            return await signalRManager.sendCommand("Pause", this.props.currentTime)
                 .then(() => {
                     this.props.onChangeStreamingStatus(false);
                     playbackManager.pause();

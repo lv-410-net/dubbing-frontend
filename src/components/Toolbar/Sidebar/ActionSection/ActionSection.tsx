@@ -119,7 +119,7 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
     public pause = async () => {
         if (!this.props.paused) {
             let time = new Date().getTime();
-            return await signalRManager.sendCommand("Pause", time - this.props.currentPlaybackTime * 1000)
+            return await signalRManager.sendCommand("Pause", this.props.currentPlaybackTime)
                     .then(() => {
                         this.props.onChangeStreamingStatus(false);
                         playbackManager.pause();
