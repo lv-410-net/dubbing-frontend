@@ -46,12 +46,12 @@ class SignalrManager {
         return await this.connection.send("SendMessage", command, time);
     }
 
-    public async sendCommandToUser(command: string, startTime: number, connectionId: any) {
+    public async sendCommandToUser(command: string, startTime: number, isPaused: boolean, connectionId: any) {
         console.log("Try send to SignalR Hub:" + command);
 
         let time = new Date().getTime();
 
-        return await this.connection.send("SendMessageToUser", command, time, startTime, connectionId);
+        return await this.connection.send("SendMessageToUser", command, time, time - startTime * 1000, isPaused, connectionId);
     }
 }
 

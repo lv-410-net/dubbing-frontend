@@ -88,7 +88,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
             console.log(this.props.currentTime);
 
             await signalRManager.sendCommandToUser(`${this.props.performanceId}_${this.props.currentSpeechId}`, 
-                this.state.startTime, connectionId);
+                this.props.currentTime, this.props.paused, connectionId);
         }
     }
 
