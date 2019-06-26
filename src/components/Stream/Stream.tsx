@@ -88,7 +88,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
             console.log(this.props.currentTime);
 
             await signalRManager.sendCommandToUser(`${this.props.performanceId}_${this.props.currentSpeechId}`, 
-                this.state.startTime, connectionId);
+                this.props.currentTime, this.props.paused, connectionId);
         }
     }
 
@@ -201,7 +201,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
     public pause = async (): Promise<void> => {
         if (!this.props.paused) {
             let time = new Date().getTime();
-            return await signalRManager.sendCommand("Pause", time - this.props.currentTime * 1000)
+            return await signalRManager.sendCommand("Pause", this.props.currentTime)
                 .then(() => {
                     this.props.onChangeStreamingStatus(false);
                     playbackManager.pause();
