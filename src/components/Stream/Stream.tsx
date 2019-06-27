@@ -102,15 +102,11 @@ class Stream extends Component<IStreamProps, IStreamState> {
                         await signalRManager.sendCommand("Start")
                             .then(() => {
                                 this.props.onChangeConnectingStatus(true);
-<<<<<<< HEAD
-                                this.setState({ started: true });
                                 if (this.props.isFirst && this.props.isPlaying) {
                                     this.playByIdHandler(this.props.currentSpeechId);
                                     this.props.onChangePaused(false);
                                 }
-=======
                                 //this.setState({ started: true });
->>>>>>> dev
                             })
                             .catch(() => alert("Виникла помилка на сервері!"));
                     })
@@ -191,13 +187,8 @@ class Stream extends Component<IStreamProps, IStreamState> {
                 await signalRManager.sendCommand(this.props.performanceId + "_" + id)
                     this.props.onSaveCurrentSpeechId(id);
                     this.props.onChangeStreamingStatus(true);
-<<<<<<< HEAD
-                    this.setState({ started: true });
                     this.props.onChangePaused(false);
-                    console.log("here one");
-=======
                     this.setState({ started: true, startTime: new Date().getTime() });
->>>>>>> dev
 
                     playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
                     playbackManager.play(
@@ -215,13 +206,8 @@ class Stream extends Component<IStreamProps, IStreamState> {
                     await signalRManager.sendCommand(this.props.performanceId + "_" + id);
                     this.props.onSaveCurrentSpeechId(id);
                     this.props.onChangeStreamingStatus(true);
-<<<<<<< HEAD
-                    this.setState({ started: true });
                     this.props.onChangePaused(false);
-                    console.log("here two");
-=======
                     this.setState({ started: true, startTime: new Date().getTime() });
->>>>>>> dev
 
                     playbackManager.play(
                         this.props.onChangeCurrentPlaybackTime,
