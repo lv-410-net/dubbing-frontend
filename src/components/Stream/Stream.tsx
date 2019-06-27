@@ -24,6 +24,7 @@ interface IStreamState {
     started: boolean;
     isWarning: boolean;
     isLoading: boolean;
+    startTime: number
 }
 
 interface IStreamProps {
@@ -77,20 +78,18 @@ class Stream extends Component<IStreamProps, IStreamState> {
             perfomanceId: this.props.match.params.number,
             performanceName: "",
             isLoading: true,
+            startTime: new Date().getTime(),
         };
         signalRManager.registerEvent("Late Connect", this.onLateConnection);
     }
 
     public onLateConnection = async (connectionId: number) => {
-        if (this.state.started && this.props.isPlaying) {
-            //console.log("Late connected");
-            console.log(this.props.currentTime + " " + connectionId);
-            await signalRManager.sendCommand(`${this.props.performanceId}_${this.props.currentSpeechId}`, 
-                this.props.currentTime, connectionId);
+        if (this.state.started) {
+            console.log(this.props.currentTime);
+
+            await signalRManager.sendCommandToUser(`${this.props.performanceId}_${this.props.currentSpeechId}`, 
+                this.props.currentTime, this.props.paused, connectionId);
         }
-        // else {
-        //     await signalRManager.sendCommand("Start");
-        // }
     }
 
     public changeConnectingStatus = async (event: Event) => {
@@ -103,11 +102,15 @@ class Stream extends Component<IStreamProps, IStreamState> {
                         await signalRManager.sendCommand("Start")
                             .then(() => {
                                 this.props.onChangeConnectingStatus(true);
+<<<<<<< HEAD
                                 this.setState({ started: true });
                                 if (this.props.isFirst && this.props.isPlaying) {
                                     this.playByIdHandler(this.props.currentSpeechId);
                                     this.props.onChangePaused(false);
                                 }
+=======
+                                //this.setState({ started: true });
+>>>>>>> dev
                             })
                             .catch(() => alert("Виникла помилка на сервері!"));
                     })
@@ -188,9 +191,13 @@ class Stream extends Component<IStreamProps, IStreamState> {
                 await signalRManager.sendCommand(this.props.performanceId + "_" + id)
                     this.props.onSaveCurrentSpeechId(id);
                     this.props.onChangeStreamingStatus(true);
+<<<<<<< HEAD
                     this.setState({ started: true });
                     this.props.onChangePaused(false);
                     console.log("here one");
+=======
+                    this.setState({ started: true, startTime: new Date().getTime() });
+>>>>>>> dev
 
                     playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
                     playbackManager.play(
@@ -208,9 +215,13 @@ class Stream extends Component<IStreamProps, IStreamState> {
                     await signalRManager.sendCommand(this.props.performanceId + "_" + id);
                     this.props.onSaveCurrentSpeechId(id);
                     this.props.onChangeStreamingStatus(true);
+<<<<<<< HEAD
                     this.setState({ started: true });
                     this.props.onChangePaused(false);
                     console.log("here two");
+=======
+                    this.setState({ started: true, startTime: new Date().getTime() });
+>>>>>>> dev
 
                     playbackManager.play(
                         this.props.onChangeCurrentPlaybackTime,
@@ -227,6 +238,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
 
     public pause = async (): Promise<void> => {
         if (!this.props.paused) {
+            let time = new Date().getTime();
             return await signalRManager.sendCommand("Pause", this.props.currentTime)
                 .then(() => {
                     this.props.onChangeStreamingStatus(false);
@@ -331,13 +343,11 @@ class Stream extends Component<IStreamProps, IStreamState> {
         this.props.onChangeCurrentTabId(1);
 
         window.onbeforeunload = (event) => {
-            return this.props.connectingStatus
-                    ? false
-                    : null;
+            return this.disconnectFromServer();
         };
     }
 
-    public async componentWillUnmount() {
+    public async disconnectFromServer(){
         if (this.props.connectingStatus) {
             if (this.props.isPlaying) {
                 await this.pause();
@@ -350,7 +360,10 @@ class Stream extends Component<IStreamProps, IStreamState> {
         }
 
         this.props.onChangeStreamStateToInitial();
-        window.onbeforeunload = null;
+    }
+
+    public async componentWillUnmount() {
+        await this.disconnectFromServer();
     }
 
     private handleError = (response: Response) => {
