@@ -54,7 +54,7 @@ class PlaybackManager {
 
     public reset = (onChangeCurrentPlaybackTime: any) => {
         if (this.timerId) {
-            this.isPause = true;
+            this.isPause = false;
             //this.currentTime = 0;
             onChangeCurrentPlaybackTime(this.currentTime);
 

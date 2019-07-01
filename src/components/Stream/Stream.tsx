@@ -69,7 +69,6 @@ class Stream extends Component<IStreamProps, IStreamState> {
         [KeyChars.Space]: false,
     };
     private repeat: boolean = true;
-
     constructor(props: any) {
         super(props);
         this.state = {
@@ -112,21 +111,15 @@ class Stream extends Component<IStreamProps, IStreamState> {
                     })
                     .catch(() => alert("Виникла помилка на сервері!"));
             } else {
-                if (this.props.isPlaying) {
-                    await this.pause();
-                }
-
                 await signalRManager.sendCommand("End")
                     .then(async () => {
                         await signalRManager.disconnectFromHub()
                             .then(() => {
                                 this.props.onChangeConnectingStatus(false);
                                 this.setState({ started: false });
-                                this.reset();
                                 this.props.onChangeFirst(true);
                                 this.props.onChangePaused(false);
                                 this.props.onChangeStreamingStatus(false);
-                                //this.props.onSaveCurrentSpeechId(0);
 
                                 if (this.props.speeches !== undefined && this.props.speeches.length !== 0) {
                                     this.props.onSaveCurrentSpeechId(this.props.speeches[0].id);
@@ -154,7 +147,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
                 } else {
                     await signalRManager.sendCommand("Resume");
                 this.props.onChangeStreamingStatus(true);
-                playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.pause.bind(this));
+                playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.reset.bind(this));
                 this.props.onChangePaused(false);
                 console.log(this.props.currentSpeechId + " and id " + id);
                 console.log(this.props.isPlaying);
@@ -216,7 +209,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
                         this.props.maxDuration, 0);
                 }
             }
-             else {
+             else if (this.props.isPlaying) {
                 await this.pause();
             }
         }
@@ -224,16 +217,14 @@ class Stream extends Component<IStreamProps, IStreamState> {
 
     public pause = async (): Promise<void> => {
         if (!this.props.paused) {
-            let time = new Date().getTime();
             return await signalRManager.sendCommand("Pause", this.props.currentTime)
                 .then(() => {
                     this.props.onChangeStreamingStatus(false);
                     playbackManager.pause();
                     this.props.onChangePaused(true);
-                    console.log(this.props.paused + " ? " + this.props.isPlaying);
                 })
                 .catch(() => alert("Виникла помилка на сервері. Спробуйте перевірити з'єднання!"));
-        }        
+        }
     }
 
     public reset = async(): Promise<void> => {
@@ -242,7 +233,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
             playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
             this.props.onChangePaused(false);
             this.props.onChangeFirst(true);
-        }
+        }           
     }
 
     public resume = async (): Promise<void> => {
@@ -250,7 +241,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
             return await signalRManager.sendCommand("Resume")
                 .then(() => {
                     this.props.onChangeStreamingStatus(true);
-                    playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.pause.bind(this));
+                    playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.reset.bind(this));
                     this.props.onChangePaused(false);
                 })
                 .catch(() => alert("Виникла помилка на сервері. Спробуйте перевірити з'єднання!"));
@@ -338,7 +329,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
             if (this.props.isPlaying) {
                 await this.pause();
             }
-
+            alert('disonnected!');
             await signalRManager.sendCommand("End")
                                 .catch((error) => console.log(error));
             await signalRManager.disconnectFromHub()

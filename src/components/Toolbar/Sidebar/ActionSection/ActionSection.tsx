@@ -109,7 +109,7 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
             if (!this.props.isPlaying) {
                 await signalRManager.sendCommand("Resume");
                     this.props.onChangeStreamingStatus(true);
-                    playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.pause.bind(this));
+                    playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.reset.bind(this));
                     this.props.onChangePaused(false);
             } else if (this.props.isPlaying) {
                 await this.pause();
@@ -119,15 +119,14 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
 
     public pause = async () => {
         if (!this.props.paused) {
-            let time = new Date().getTime();
             return await signalRManager.sendCommand("Pause", this.props.currentPlaybackTime)
                     .then(() => {
                         this.props.onChangeStreamingStatus(false);
                         playbackManager.pause();
                         this.props.onChangePaused(true);
                     })
-                    .catch((error) => console.log(error));
-        }        
+                    .catch((error) => console.log(error));  
+        }          
     }
 
     public reset = async () => {
@@ -136,7 +135,6 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
             playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
             this.props.onChangePaused(false);
             this.props.onChangeFirst(true);
-            //this.props.onChangeCurrentSpeechId(0);
         }
     }
 
@@ -145,7 +143,7 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
             return await signalRManager.sendCommand("Resume")
                     .then(() => {
                         this.props.onChangeStreamingStatus(true);
-                        playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.pause.bind(this));
+                        playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.reset.bind(this));
                         this.props.onChangePaused(false);
                     })
                     .catch((error) => console.log(error));
