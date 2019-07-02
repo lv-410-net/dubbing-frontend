@@ -69,7 +69,6 @@ class Stream extends Component<IStreamProps, IStreamState> {
         [KeyChars.Space]: false,
     };
     private repeat: boolean = true;
-
     constructor(props: any) {
         super(props);
         this.state = {
@@ -102,22 +101,25 @@ class Stream extends Component<IStreamProps, IStreamState> {
                         await signalRManager.sendCommand("Start")
                             .then(() => {
                                 this.props.onChangeConnectingStatus(true);
+                                if (this.props.isFirst && this.props.isPlaying) {
+                                    this.playByIdHandler(this.props.currentSpeechId);
+                                    this.props.onChangePaused(false);
+                                }
                                 //this.setState({ started: true });
                             })
                             .catch(() => alert("Виникла помилка на сервері!"));
                     })
                     .catch(() => alert("Виникла помилка на сервері!"));
             } else {
-                if (this.props.isPlaying) {
-                    await this.pause();
-                }
-
                 await signalRManager.sendCommand("End")
                     .then(async () => {
                         await signalRManager.disconnectFromHub()
                             .then(() => {
                                 this.props.onChangeConnectingStatus(false);
                                 this.setState({ started: false });
+                                this.props.onChangeFirst(true);
+                                this.props.onChangePaused(false);
+                                this.props.onChangeStreamingStatus(false);
 
                                 if (this.props.speeches !== undefined && this.props.speeches.length !== 0) {
                                     this.props.onSaveCurrentSpeechId(this.props.speeches[0].id);
@@ -136,7 +138,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
         if (this.props.connectingStatus) {
             if (!this.props.isPlaying && this.props.paused) {
 
-                if (this.props.currentSpeechId !== id) {
+                if (this.props.currentSpeechId !== id && this.props.paused) {
                     playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
                     this.props.onSaveCurrentSpeechId(id);
                     await this.playByIdHandler(id);
@@ -145,7 +147,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
                 } else {
                     await signalRManager.sendCommand("Resume");
                 this.props.onChangeStreamingStatus(true);
-                playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.pause.bind(this));
+                playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.reset.bind(this));
                 this.props.onChangePaused(false);
                 console.log(this.props.currentSpeechId + " and id " + id);
                 console.log(this.props.isPlaying);
@@ -163,6 +165,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
                 .then(() => {
                     this.props.onSaveCurrentSpeechId(id);
                     this.props.onChangeStreamingStatus(true);
+                    this.props.onChangePaused(false);
                     this.setState({ started: true, startTime: new Date().getTime() });
 
                     playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
@@ -175,13 +178,14 @@ class Stream extends Component<IStreamProps, IStreamState> {
                     if (this.props.isFirst) {
                         this.props.onChangeFirst(false);
                     }
-                })
-                .catch(() => alert("Виникла помилка на сервері. Спробуйте перевірити з'єднання!"));
+                }).catch(() => alert("Виникла помилка на сервері. Спробуйте перевірити з'єднання!"));             
+
             } else if (!this.props.isPlaying && !this.props.isFirst) {
-                await signalRManager.sendCommand(this.props.performanceId + "_" + id)
-                .then(() => {
+                if (this.props.paused && this.props.currentSpeechId !== id) {
+                    await signalRManager.sendCommand(this.props.performanceId + "_" + id);
                     this.props.onSaveCurrentSpeechId(id);
                     this.props.onChangeStreamingStatus(true);
+                    this.props.onChangePaused(false);
                     this.setState({ started: true, startTime: new Date().getTime() });
 
                     playbackManager.play(
@@ -189,10 +193,9 @@ class Stream extends Component<IStreamProps, IStreamState> {
                         this.pause.bind(this),
                         this.reset.bind(this),
                         this.props.maxDuration, 0);
-                })
-                .catch(() => alert("Виникла помилка на сервері. Спробуйте перевірити з'єднання!"));
+                }
             }
-             else {
+             else if (this.props.isPlaying) {
                 await this.pause();
             }
         }
@@ -200,16 +203,14 @@ class Stream extends Component<IStreamProps, IStreamState> {
 
     public pause = async (): Promise<void> => {
         if (!this.props.paused) {
-            let time = new Date().getTime();
             return await signalRManager.sendCommand("Pause", this.props.currentTime)
                 .then(() => {
                     this.props.onChangeStreamingStatus(false);
                     playbackManager.pause();
                     this.props.onChangePaused(true);
-                    console.log(this.props.paused + " ? " + this.props.isPlaying);
                 })
                 .catch(() => alert("Виникла помилка на сервері. Спробуйте перевірити з'єднання!"));
-        }        
+        }
     }
 
     public reset = async(): Promise<void> => {
@@ -217,7 +218,8 @@ class Stream extends Component<IStreamProps, IStreamState> {
             this.props.onChangeStreamingStatus(false);
             playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
             this.props.onChangePaused(false);
-        }
+            this.props.onChangeFirst(true);
+        }           
     }
 
     public resume = async (): Promise<void> => {
@@ -225,7 +227,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
             return await signalRManager.sendCommand("Resume")
                 .then(() => {
                     this.props.onChangeStreamingStatus(true);
-                    playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.pause.bind(this));
+                    playbackManager.resume(this.props.onChangeCurrentPlaybackTime, this.reset.bind(this));
                     this.props.onChangePaused(false);
                 })
                 .catch(() => alert("Виникла помилка на сервері. Спробуйте перевірити з'єднання!"));
@@ -313,7 +315,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
             if (this.props.isPlaying) {
                 await this.pause();
             }
-
+            alert('disonnected!');
             await signalRManager.sendCommand("End")
                                 .catch((error) => console.log(error));
             await signalRManager.disconnectFromHub()
