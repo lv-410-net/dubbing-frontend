@@ -154,22 +154,6 @@ class Stream extends Component<IStreamProps, IStreamState> {
                 }              
             } else if (this.props.isPlaying) {
                 await this.pause();
-            } else if (this.props.paused && this.props.currentSpeechId !== id) {
-                await signalRManager.sendCommand(this.props.performanceId + "_" + id)
-                .then(() => {
-                    this.props.onSaveCurrentSpeechId(id);
-                    this.props.onChangeStreamingStatus(true);
-                    this.setState({started: true});
-                    this.props.onChangePaused(false);
-                    console.log('THIS IS IT!!!');
-
-                    playbackManager.play(
-                        this.props.onChangeCurrentPlaybackTime,
-                        this.pause.bind(this),
-                        this.reset.bind(this),
-                        this.props.maxDuration, 0
-                    );
-                }).catch(() => alert("Виникла помилка на сервері. Спробуйте перевірити з'єднання!"));
             }
         }
     }
@@ -178,6 +162,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
         if (this.props.connectingStatus) {
             if (this.props.isFirst || (this.props.isPlaying && id !== this.props.currentSpeechId)) {
                 await signalRManager.sendCommand(this.props.performanceId + "_" + id)
+                .then(() => {
                     this.props.onSaveCurrentSpeechId(id);
                     this.props.onChangeStreamingStatus(true);
                     this.props.onChangePaused(false);
@@ -193,6 +178,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
                     if (this.props.isFirst) {
                         this.props.onChangeFirst(false);
                     }
+                }).catch(() => alert("Виникла помилка на сервері. Спробуйте перевірити з'єднання!"));             
 
             } else if (!this.props.isPlaying && !this.props.isFirst) {
                 if (this.props.paused && this.props.currentSpeechId !== id) {
