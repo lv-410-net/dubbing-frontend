@@ -157,13 +157,22 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
             if (this.props.currentSpeechIndex !== this.props.speeches.length - 1) {
                 const nextSpeechId = this.props.speeches[this.props.currentSpeechIndex + 1].id;
                 this.props.onChangeCurrentSpeechId(nextSpeechId);
-                playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
 
-                if (this.props.isPlaying || this.props.paused) {
+                if (this.props.paused) {
                     await signalRManager.sendCommand(this.props.performanceId + "_" + nextSpeechId);
+                    playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
                     this.props.onChangeStreamingStatus(true);
                     this.props.onChangePaused(false);
                     
+                    playbackManager.play(
+                        this.props.onChangeCurrentPlaybackTime,
+                        this.pause.bind(this),
+                        this.reset.bind(this),
+                        this.props.maxDuration, 0);
+                } else {
+                    await signalRManager.sendCommand(this.props.performanceId + "_" + nextSpeechId);
+                    playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
+                    this.props.onChangeStreamingStatus(true);
                     playbackManager.play(
                         this.props.onChangeCurrentPlaybackTime,
                         this.pause.bind(this),
@@ -182,12 +191,21 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
                 const prevSpeechId = this.props.speeches[this.props.currentSpeechIndex - 1].id;
                 this.props.onChangeCurrentSpeechId(prevSpeechId);
 
-                if (this.props.isPlaying || this.props.paused) {
+                if (this.props.paused){
                     await signalRManager.sendCommand(this.props.performanceId + "_" + prevSpeechId);
                     playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
                     this.props.onChangeStreamingStatus(true);
                     this.props.onChangePaused(false);
 
+                    playbackManager.play(
+                        this.props.onChangeCurrentPlaybackTime,
+                        this.pause.bind(this),
+                        this.reset.bind(this),
+                        this.props.maxDuration, 0);
+                } else {
+                    await signalRManager.sendCommand(this.props.performanceId + "_" + prevSpeechId);
+                    playbackManager.reset(this.props.onChangeCurrentPlaybackTime);
+                    this.props.onChangeStreamingStatus(true);
                     playbackManager.play(
                         this.props.onChangeCurrentPlaybackTime,
                         this.pause.bind(this),
@@ -238,6 +256,12 @@ class ActionSection extends Component<IActionSectionProps, IActionSectionState> 
                     currentTime={this.props.currentPlaybackTime} />
                 <KeyBinding onKey={(event: KeyboardEvent) => this.onKeyDownUpHandler(event) } type="keydown"/>
                 <KeyBinding onKey={(event: KeyboardEvent) => this.onKeyDownUpHandler(event) } type="keyup"/>
+                <br />
+                <p>Поточний трек: <span>{this.props.speeches ?
+                    this.props.speeches[this.props.currentSpeechIndex].text : "--"}</span></p>
+                <br />
+                <p>Наступний трек: <span>{this.props.speeches && this.props.speeches.length > this.props.currentSpeechIndex + 1 ?
+                    this.props.speeches[this.props.currentSpeechIndex + 1].text : "--"}</span></p>
             </Aux>
         );
     }

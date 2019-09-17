@@ -115,6 +115,7 @@ class Stream extends Component<IStreamProps, IStreamState> {
                     .then(async () => {
                         await signalRManager.disconnectFromHub()
                             .then(() => {
+                                this.reset();
                                 this.props.onChangeConnectingStatus(false);
                                 this.setState({ started: false });
                                 this.props.onChangeFirst(true);
